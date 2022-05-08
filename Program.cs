@@ -14,9 +14,14 @@
         {
             var student = new Student();
 
-            student.Select(s => new { s.age, s.name, s.surname }).Execute();
+            student.Select(s => new { s.age, s.name, s.surname })
+                    .Execute();
+
             Console.WriteLine("//////////");
-            student.Select(s => s.age).Execute();
+
+            student.Select(s => s.age)
+                    .From("students")
+                    .Execute();
         }
     }
 }

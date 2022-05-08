@@ -45,6 +45,10 @@ namespace ORM.Lexicography
                     return new Token(Tokens.Token.OBJECT_PROPERTY, characters.Replace(",", ""));
                 }
 
+                if (Regex.Match(characters, @"^[A-Za-z]+$").Success)
+                {
+                    return new Token(Tokens.Token.WORD, characters);
+                }
             }
 
             return new Token(token, characters);

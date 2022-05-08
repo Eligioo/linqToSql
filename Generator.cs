@@ -25,10 +25,21 @@ namespace ORM.Generator
                     foreach (var child in currentNode.Children())
                     {
                         var token = child.GetTokens().First();
-                        var chars = token.Characters().Split('.').Last();
+                        var chars = token.Characters()
+                                        .Split('.')
+                                        .Last();
                         this.sqlQuery += " " + chars + ",";
                     }
                     this.sqlQuery = this.sqlQuery.TrimEnd(',');
+                }
+                else if (currentNode.TokenType() == Token.FROM)
+                {
+                    this.sqlQuery += " FROM";
+                    this.sqlQuery += " " + currentNode.Children()
+                                        .First()
+                                        .GetTokens()
+                                        .First()
+                                        .Characters();
                 }
                 currentNode = currentNode.NextNode();
             }

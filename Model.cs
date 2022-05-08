@@ -20,6 +20,13 @@ namespace ORM
             this.ast = new AST.Node(Lexicography.Tokens.Token.SELECT, tokens);
         }
 
+        public PendingQuery<T> From(String selector)
+        {
+            var tokens = Lexer.Tokenize(selector);
+            this.ast.Append(new AST.Node(Lexicography.Tokens.Token.FROM, tokens));
+            return this;
+        }
+
         public List<T> Execute()
         {
             var g = new Generator.Generator(this.ast).Generate();

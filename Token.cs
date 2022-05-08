@@ -42,6 +42,7 @@ namespace ORM.Lexicography.Tokens
         OBJECT_PROPERTY,        // s.name
         SPACE,                  // " "
         CHAR,                   // a
+        WORD,                   // student
         SELECT,
         WHERE,
         FROM,
