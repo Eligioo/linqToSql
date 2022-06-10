@@ -21,8 +21,12 @@ namespace ORM.AST
 
         public void Append(Node node)
         {
-            // Incorrect implementation! Needs to be the deepest node of th AST.
-            this.next = node;
+            var currentNode = this;
+            while (currentNode.next != null)
+            {
+                currentNode = currentNode.next;
+            }
+            currentNode.next = node;
         }
 
         public List<Node> Children()

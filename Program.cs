@@ -14,14 +14,14 @@
         {
             var student = new Student();
 
-            student.Select(s => new { s.age, s.name, s.surname })
-                    .Execute();
+            var students = student.Select(s => new { s.age, s.name, s.surname });
+            // .Execute();
 
             Console.WriteLine("//////////");
 
             student.Select(s => s.age)
-                    .From("students")
-                    .Execute();
+                    .Where(s => s.age == 22);
+            // .Execute();
         }
     }
 }

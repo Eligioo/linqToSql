@@ -27,6 +27,12 @@ namespace ORM.Lexicography
                 case "=":
                     token = Tokens.Token.EQUAL;
                     break;
+                case "True":
+                    token = Tokens.Token.TRUE;
+                    break;
+                case "False":
+                    token = Tokens.Token.FALSE;
+                    break;
                 case "new":
                     token = Tokens.Token.NEW_LAMBDA_KEYWORD;
                     break;
@@ -48,6 +54,16 @@ namespace ORM.Lexicography
                 if (Regex.Match(characters, @"^[A-Za-z]+$").Success)
                 {
                     return new Token(Tokens.Token.WORD, characters);
+                }
+
+                if (Regex.Match(characters, @"^\d+$").Success)
+                {
+                    return new Token(Tokens.Token.INTEGER, characters);
+                }
+
+                if (Regex.Match(characters, @"(\w*\s\w*)\s+\w{2}\d\s+\d*").Success)
+                {
+                    return new Token(Tokens.Token.SPACE, characters);
                 }
             }
 

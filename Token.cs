@@ -43,6 +43,9 @@ namespace ORM.Lexicography.Tokens
         SPACE,                  // " "
         CHAR,                   // a
         WORD,                   // student
+        TRUE,                   // True
+        FALSE,                  // False
+        INTEGER,                // 0
         SELECT,
         WHERE,
         FROM,
