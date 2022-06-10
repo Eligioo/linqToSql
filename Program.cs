@@ -19,7 +19,7 @@
 
             Console.WriteLine("//////////");
 
-            student.Select(s => s.age)
+            student.Select(s => new { s.age })
                     .Where(s => s.age == 22);
             // .Execute();
         }

@@ -7,11 +7,11 @@ namespace ORM
 {
     abstract class Model<T>
     {
-        public PendingQuery<T> Select<Selector>(Expression<Func<T, Selector>> s)
+        public PendingQuery<Selector> Select<Selector>(Expression<Func<T, Selector>> s)
         {
             IPluralize pluralizer = new Pluralizer();
             var objectName = typeof(T).ToString().Split('.').Last().ToLower();
-            return new PendingQuery<T>(s.ToString(), pluralizer.Pluralize(objectName));
+            return new PendingQuery<Selector>(s.ToString(), pluralizer.Pluralize(objectName));
         }
     }
 
@@ -41,7 +41,7 @@ namespace ORM
             return this;
         }
 
-        public List<object> Execute(String server, String user, String password, String database)
+        public List<T> Execute(String server, String user, String password, String database)
         {
             var g = new Generator.Generator(this.ast).Generate();
             Console.WriteLine(g);
@@ -52,13 +52,12 @@ namespace ORM
             var reader = new MySqlCommand(g, con).ExecuteReader();
 
             int intFieldCount = reader.FieldCount;
-            List<object> list = new List<object>();
+            List<T> list = new List<T>();
 
             while (reader.Read())
             {
                 object[] objValues = new object[intFieldCount];
                 reader.GetValues(objValues);
-                var a = reader.GetFieldValue<int>(0);
                 list.Add(objValues);
                 // Console.WriteLine(reader.GetValues(objs));
                 Console.WriteLine(reader.GetString(1));
