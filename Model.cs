@@ -47,8 +47,9 @@ namespace ORM
             Console.WriteLine(g);
 
             string cs = @"server=" + server + ";userid=" + user + ";password=" + password + ";database=" + database;
-            using var con = new MySqlConnection(cs);
+            var con = new MySqlConnection(cs);
             con.Open();
+
             var reader = new MySqlCommand(g, con).ExecuteReader();
 
             int intFieldCount = reader.FieldCount;
@@ -56,12 +57,12 @@ namespace ORM
 
             while (reader.Read())
             {
-                object[] objValues = new object[intFieldCount];
-                reader.GetValues(objValues);
-                list.Add(objValues);
-                // Console.WriteLine(reader.GetValues(objs));
-                Console.WriteLine(reader.GetString(1));
+                object[] values = new object[intFieldCount];
+                reader.GetValues(values);
+                var instance = (T)Activator.CreateInstance(typeof(T), values);
+                list.Add(instance);
             }
+
             con.Close();
 
             return list;
