@@ -34,6 +34,11 @@ namespace ORM.AST
             return this.children;
         }
 
+        public void AddChild(AST.Node node)
+        {
+            this.children.Add(node);
+        }
+
         private void Organize()
         {
             if (this.token == Token.SELECT)
@@ -64,6 +69,17 @@ namespace ORM.AST
                 // Remove WORD token because information has been moved to child.
                 this.tokens.Clear();
             }
+        }
+
+        public Node Last()
+        {
+            var current = this;
+            while (current.next != null)
+            {
+                current = current.next;
+            }
+
+            return current;
         }
 
         public Node? NextNode()

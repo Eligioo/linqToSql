@@ -5,7 +5,7 @@
     {
         public String name;
         public Int32 age;
-        public String? surname;
+        public String surname;
     }
 
     class Program
@@ -14,7 +14,8 @@
         {
             var student = new Student();
 
-            var students = student.Select(s => new { s.age, s.name, s.surname });
+            var students = student.Select(s => new { s.age, s.name, s.surname })
+            .Where(student => student.age == 25 && student.age == 26);
             // .Execute();
 
             Console.WriteLine("//////////");

@@ -39,6 +39,9 @@ namespace ORM.Lexicography
                 case " ":
                     token = Tokens.Token.SPACE;
                     break;
+                case "AndAlso":
+                    token = Tokens.Token.ANDALSO;
+                    break;
                 default:
                     token = Tokens.Token.UNDEFINED_TOKEN;
                     break;

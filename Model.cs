@@ -31,14 +31,47 @@ namespace ORM
 
         public PendingQuery<T> Where(Expression<Func<T, bool>> predicate)
         {
-            var tokens = Lexer.Tokenize(predicate.ToString());
-            Console.WriteLine(predicate.ToString());
-            foreach (var token in tokens)
-            {
-                Console.WriteLine(token.ToString());
-            }
-            Environment.Exit(0);
+            string trimmedPredicate = predicate.ToString();
+            // Trim everything before the actual expression
+            trimmedPredicate = trimmedPredicate.Substring(trimmedPredicate.LastIndexOf("=> ") + 3);
+
+            var tokens = Lexer
+                        .Tokenize(trimmedPredicate)
+                        .FindAll(t => t.Type() != Lexicography.Tokens.Token.UNDEFINED_TOKEN);
+
+            var whereAST = this.ParseWhereStatement(tokens, new AST.Node(Lexicography.Tokens.Token.WHERE, new List<Token>()));
+            this.ast.Append(whereAST);
             return this;
+        }
+
+        private AST.Node ParseWhereStatement(List<Token> tokens, AST.Node whereAST)
+        {
+            if (tokens.FindIndex(a => a.Type() == Lexicography.Tokens.Token.ANDALSO) != -1)
+            {
+                var index = tokens.FindIndex(a => a.Type() == Lexicography.Tokens.Token.ANDALSO);
+                var lhs = tokens.TakeWhile(a => a.Type() != Lexicography.Tokens.Token.ANDALSO).ToList();
+                var rhs = tokens.GetRange(index + 1, tokens.Count - index - 1);
+
+                AST.Node AndAlso = new AST.Node(Lexicography.Tokens.Token.ANDALSO, new List<Token>());
+                whereAST.Append(AndAlso);
+                ParseWhereStatement(lhs, whereAST);
+                ParseWhereStatement(rhs, whereAST);
+
+            }
+            else if (tokens.FindIndex(a => a.Type() == Lexicography.Tokens.Token.IS_EQUAL) != -1)
+            {
+                var index = tokens.FindIndex(a => a.Type() == Lexicography.Tokens.Token.IS_EQUAL);
+                List<Token> children = new List<Token>();
+
+                // Add lhs and rhs of IS_EQUAL token
+                children.Add(tokens[index - 1]);
+                children.Add(tokens[index + 1]);
+                tokens.RemoveRange(index - 1, 3);
+
+                whereAST.Last().AddChild(new AST.Node(Lexicography.Tokens.Token.IS_EQUAL, children));
+                ParseWhereStatement(tokens, whereAST);
+            }
+            return whereAST;
         }
 
         public List<T> Execute(String server, String user, String password, String database)
