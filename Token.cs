@@ -46,7 +46,9 @@ namespace ORM.Lexicography.Tokens
         TRUE,                   // True
         FALSE,                  // False
         INTEGER,                // 0
+        STRING,                  // "Hello"
         ANDALSO,
+        ORELSE,
         SELECT,
         WHERE,
         FROM,

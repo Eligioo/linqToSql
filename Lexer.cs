@@ -42,6 +42,9 @@ namespace ORM.Lexicography
                 case "AndAlso":
                     token = Tokens.Token.ANDALSO;
                     break;
+                case "OrElse":
+                    token = Tokens.Token.ORELSE;
+                    break;
                 default:
                     token = Tokens.Token.UNDEFINED_TOKEN;
                     break;
@@ -67,6 +70,11 @@ namespace ORM.Lexicography
                 if (Regex.Match(characters, @"(\w*\s\w*)\s+\w{2}\d\s+\d*").Success)
                 {
                     return new Token(Tokens.Token.SPACE, characters);
+                }
+
+                if (characters.StartsWith('"') && characters.EndsWith('"'))
+                {
+                    return new Token(Tokens.Token.STRING, characters);
                 }
             }
 

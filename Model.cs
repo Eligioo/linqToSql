@@ -46,14 +46,27 @@ namespace ORM
 
         private AST.Node ParseWhereStatement(List<Token> tokens, AST.Node whereAST)
         {
-            if (tokens.FindIndex(a => a.Type() == Lexicography.Tokens.Token.ANDALSO) != -1)
+            var indexAndAlso = tokens.FindIndex(a => a.Type() == Lexicography.Tokens.Token.ANDALSO);
+            var indexOrElse = tokens.FindIndex(a => a.Type() == Lexicography.Tokens.Token.ORELSE);
+
+            if (indexAndAlso != -1 && (indexAndAlso < indexOrElse || indexOrElse == -1))
             {
-                var index = tokens.FindIndex(a => a.Type() == Lexicography.Tokens.Token.ANDALSO);
                 var lhs = tokens.TakeWhile(a => a.Type() != Lexicography.Tokens.Token.ANDALSO).ToList();
-                var rhs = tokens.GetRange(index + 1, tokens.Count - index - 1);
+                var rhs = tokens.GetRange(indexAndAlso + 1, tokens.Count - indexAndAlso - 1);
 
                 AST.Node AndAlso = new AST.Node(Lexicography.Tokens.Token.ANDALSO, new List<Token>());
                 whereAST.Append(AndAlso);
+                ParseWhereStatement(lhs, whereAST);
+                ParseWhereStatement(rhs, whereAST);
+
+            }
+            else if (indexOrElse != -1 && (indexOrElse < indexAndAlso || indexAndAlso == -1))
+            {
+                var lhs = tokens.TakeWhile(a => a.Type() != Lexicography.Tokens.Token.ORELSE).ToList();
+                var rhs = tokens.GetRange(indexOrElse + 1, tokens.Count - indexOrElse - 1);
+
+                AST.Node OrElse = new AST.Node(Lexicography.Tokens.Token.ORELSE, new List<Token>());
+                whereAST.Append(OrElse);
                 ParseWhereStatement(lhs, whereAST);
                 ParseWhereStatement(rhs, whereAST);
 
@@ -85,12 +98,12 @@ namespace ORM
 
             var reader = new MySqlCommand(g, con).ExecuteReader();
 
-            int intFieldCount = reader.FieldCount;
+            int fieldCount = reader.FieldCount;
             List<T> list = new List<T>();
 
             while (reader.Read())
             {
-                object[] values = new object[intFieldCount];
+                object[] values = new object[fieldCount];
                 reader.GetValues(values);
                 var instance = (T)Activator.CreateInstance(typeof(T), values);
                 list.Add(instance);

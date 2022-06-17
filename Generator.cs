@@ -19,6 +19,7 @@ namespace ORM.Generator
             var currentNode = this.ast;
             while (currentNode != null)
             {
+                // SELECT SECTION
                 if (currentNode.TokenType() == Token.SELECT)
                 {
                     this.sqlQuery += "SELECT";
@@ -32,6 +33,7 @@ namespace ORM.Generator
                     }
                     this.sqlQuery = this.sqlQuery.TrimEnd(',');
                 }
+                // FROM SECTION
                 else if (currentNode.TokenType() == Token.FROM)
                 {
                     this.sqlQuery += " FROM";
@@ -40,6 +42,40 @@ namespace ORM.Generator
                                         .GetTokens()
                                         .First()
                                         .Characters();
+                }
+                // WHERE SECTION
+                else if (currentNode.TokenType() == Token.WHERE)
+                {
+                    this.sqlQuery += " WHERE";
+
+                    // Where clause only has one predicate. No extra AndAlso or OrElse.
+                    if (currentNode.Children().Count() == 1)
+                    {
+                        AST.Node child = currentNode.Children().First();
+                        string property = child
+                                        .GetTokens()
+                                        .First()
+                                        .Characters()
+                                        .Split('.')
+                                        .Last();
+
+                        string op = child.TokenType() switch
+                        {
+                            Token.IS_EQUAL => "=",
+                            _ => throw new Exception("WHERE: can't find operator.")
+                        };
+
+                        string value = child
+                                        .GetTokens()
+                                        .Last()
+                                        .Characters();
+
+                        this.sqlQuery += " " + property + " " + op + " " + value;
+                    }
+                    else if (currentNode.Children().Count() > 1)
+                    {
+                        throw new Exception("WHERE: incorrect construct of node. 2 or more children.");
+                    }
                 }
                 currentNode = currentNode.NextNode();
             }
