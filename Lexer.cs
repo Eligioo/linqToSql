@@ -40,10 +40,10 @@ namespace ORM.Lexicography
                     token = Tokens.Token.SPACE;
                     break;
                 case "AndAlso":
-                    token = Tokens.Token.ANDALSO;
+                    token = Tokens.Token.AND_ALSO;
                     break;
                 case "OrElse":
-                    token = Tokens.Token.ORELSE;
+                    token = Tokens.Token.OR_ELSE;
                     break;
                 default:
                     token = Tokens.Token.UNDEFINED_TOKEN;

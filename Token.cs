@@ -35,6 +35,9 @@ namespace ORM.Lexicography.Tokens
         DOT,                    // .
         ARROW,                  // =>
         IS_EQUAL,               // ==
+        NOT_EQUAL,              // !=
+        GREATER_THAN,           // >
+        LESS_THAN,              // <
         LEFT_PARENTHESIS,       // (
         RIGHT_PARENTHESIS,      // )
         EQUAL,                  // =
@@ -47,13 +50,30 @@ namespace ORM.Lexicography.Tokens
         FALSE,                  // False
         INTEGER,                // 0
         STRING,                  // "Hello"
-        ANDALSO,
-        ORELSE,
+        AND_ALSO,
+        OR_ELSE,
         SELECT,
         WHERE,
         FROM,
         GROUP_BY,
         ORDER_BY,
         UNDEFINED_TOKEN
+    }
+
+    class TokenCls
+    {
+        public static List<Token> ComparisonTokenGroup = new List<Token>(){
+            Token.IS_EQUAL,
+            Token.NOT_EQUAL,
+            Token.GREATER_THAN,
+            Token.LESS_THAN,
+            Token.AND_ALSO,
+            Token.OR_ELSE,
+        };
+
+        public static bool isTokenPartOfGroup(Token token, List<Token> group)
+        {
+            return group.Contains(token);
+        }
     }
 }

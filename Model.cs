@@ -46,15 +46,16 @@ namespace ORM
 
         private AST.Node ParseWhereStatement(List<Token> tokens, AST.Node whereAST)
         {
-            var indexAndAlso = tokens.FindIndex(a => a.Type() == Lexicography.Tokens.Token.ANDALSO);
-            var indexOrElse = tokens.FindIndex(a => a.Type() == Lexicography.Tokens.Token.ORELSE);
+            var indexAndAlso = tokens.FindIndex(a => a.Type() == Lexicography.Tokens.Token.AND_ALSO);
+            var indexOrElse = tokens.FindIndex(a => a.Type() == Lexicography.Tokens.Token.OR_ELSE);
 
+            // TODO: This if and next else if can get merged.
             if (indexAndAlso != -1 && (indexAndAlso < indexOrElse || indexOrElse == -1))
             {
-                var lhs = tokens.TakeWhile(a => a.Type() != Lexicography.Tokens.Token.ANDALSO).ToList();
+                var lhs = tokens.TakeWhile(a => a.Type() != Lexicography.Tokens.Token.AND_ALSO).ToList();
                 var rhs = tokens.GetRange(indexAndAlso + 1, tokens.Count - indexAndAlso - 1);
 
-                AST.Node AndAlso = new AST.Node(Lexicography.Tokens.Token.ANDALSO, new List<Token>());
+                AST.Node AndAlso = new AST.Node(Lexicography.Tokens.Token.AND_ALSO, new List<Token>());
                 whereAST.Append(AndAlso);
                 ParseWhereStatement(lhs, whereAST);
                 ParseWhereStatement(rhs, whereAST);
@@ -62,10 +63,10 @@ namespace ORM
             }
             else if (indexOrElse != -1 && (indexOrElse < indexAndAlso || indexAndAlso == -1))
             {
-                var lhs = tokens.TakeWhile(a => a.Type() != Lexicography.Tokens.Token.ORELSE).ToList();
+                var lhs = tokens.TakeWhile(a => a.Type() != Lexicography.Tokens.Token.OR_ELSE).ToList();
                 var rhs = tokens.GetRange(indexOrElse + 1, tokens.Count - indexOrElse - 1);
 
-                AST.Node OrElse = new AST.Node(Lexicography.Tokens.Token.ORELSE, new List<Token>());
+                AST.Node OrElse = new AST.Node(Lexicography.Tokens.Token.OR_ELSE, new List<Token>());
                 whereAST.Append(OrElse);
                 ParseWhereStatement(lhs, whereAST);
                 ParseWhereStatement(rhs, whereAST);
@@ -101,9 +102,9 @@ namespace ORM
             int fieldCount = reader.FieldCount;
             List<T> list = new List<T>();
 
+            object[] values = new object[fieldCount];
             while (reader.Read())
             {
-                object[] values = new object[fieldCount];
                 reader.GetValues(values);
                 var instance = (T)Activator.CreateInstance(typeof(T), values);
                 list.Add(instance);
