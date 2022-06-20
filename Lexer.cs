@@ -18,6 +18,9 @@ namespace ORM.Lexicography
                 case "==":
                     token = Tokens.Token.IS_EQUAL;
                     break;
+                case "!=":
+                    token = Tokens.Token.NOT_EQUAL;
+                    break;
                 case "(":
                     token = Tokens.Token.LEFT_PARENTHESIS;
                     break;

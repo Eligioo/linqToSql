@@ -61,7 +61,7 @@ namespace ORM.Generator
                         {
                             int predicateChildrenCount = innerWhereNode.Children().Count();
 
-                            // Small optimization reducing code duplication. If the count = 2, means we have an AndAlso/OrElse construct.
+                            // Small optimization reducing code duplication. If the count = 2, means we have a "predicate AndAlso/OrElse predicate" construct.
                             if (predicateChildrenCount == 1 || predicateChildrenCount == 2)
                             {
                                 // LHS of predicate
@@ -116,6 +116,7 @@ namespace ORM.Generator
             string op = node.TokenType() switch
             {
                 Token.IS_EQUAL => "=",
+                Token.NOT_EQUAL => "!=",
                 _ => throw new Exception("WHERE: can't find operator.")
             };
 

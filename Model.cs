@@ -46,43 +46,48 @@ namespace ORM
 
         private AST.Node ParseWhereStatement(List<Token> tokens, AST.Node whereAST)
         {
-            var indexAndAlso = tokens.FindIndex(a => a.Type() == Lexicography.Tokens.Token.AND_ALSO);
-            var indexOrElse = tokens.FindIndex(a => a.Type() == Lexicography.Tokens.Token.OR_ELSE);
-
-            // TODO: This if and next else if can get merged.
-            if (indexAndAlso != -1 && (indexAndAlso < indexOrElse || indexOrElse == -1))
+            var leftPredicateCombiner = new List<(int, Lexicography.Tokens.Token)>()
             {
-                var lhs = tokens.TakeWhile(a => a.Type() != Lexicography.Tokens.Token.AND_ALSO).ToList();
-                var rhs = tokens.GetRange(indexAndAlso + 1, tokens.Count - indexAndAlso - 1);
+                (tokens.FindIndex(a => a.Type() == Lexicography.Tokens.Token.AND_ALSO), Lexicography.Tokens.Token.AND_ALSO),
+                (tokens.FindIndex(a => a.Type() == Lexicography.Tokens.Token.OR_ELSE), Lexicography.Tokens.Token.OR_ELSE)
+            }
+            .OrderBy(tuple => tuple.Item1)
+            .ToList()
+            .Find(tuple => tuple.Item1 > -1);
 
-                AST.Node AndAlso = new AST.Node(Lexicography.Tokens.Token.AND_ALSO, new List<Token>());
-                whereAST.Append(AndAlso);
+            // TODO: this computation is not necassary when an AndAlso or OrElse index is already found.
+            var leftSidePredicate = new List<(int, Lexicography.Tokens.Token)>()
+            {
+                (tokens.FindIndex(a => a.Type() == Lexicography.Tokens.Token.IS_EQUAL), Lexicography.Tokens.Token.IS_EQUAL),
+                (tokens.FindIndex(a => a.Type() == Lexicography.Tokens.Token.NOT_EQUAL), Lexicography.Tokens.Token.NOT_EQUAL)
+            }
+            .OrderBy(tuple => tuple.Item1)
+            .ToList()
+            .Find(tuple => tuple.Item1 > -1);
+
+            // Chosen Lexicography.Tokens.Token.DOT because it's the default value for the Token enum.
+            if (leftPredicateCombiner.Item2 != Lexicography.Tokens.Token.DOT)
+            {
+                var lhs = tokens.TakeWhile(a => a.Type() != leftPredicateCombiner.Item2).ToList();
+                var rhs = tokens.GetRange(leftPredicateCombiner.Item1 + 1, tokens.Count - leftPredicateCombiner.Item1 - 1);
+
+                AST.Node predicateCombiner = new AST.Node(leftPredicateCombiner.Item2, new List<Token>());
+                whereAST.Append(predicateCombiner);
                 ParseWhereStatement(lhs, whereAST);
                 ParseWhereStatement(rhs, whereAST);
 
             }
-            else if (indexOrElse != -1 && (indexOrElse < indexAndAlso || indexAndAlso == -1))
+            // Chosen Lexicography.Tokens.Token.DOT because it's the default value for the Token enum.
+            else if (leftSidePredicate.Item2 != Lexicography.Tokens.Token.DOT)
             {
-                var lhs = tokens.TakeWhile(a => a.Type() != Lexicography.Tokens.Token.OR_ELSE).ToList();
-                var rhs = tokens.GetRange(indexOrElse + 1, tokens.Count - indexOrElse - 1);
-
-                AST.Node OrElse = new AST.Node(Lexicography.Tokens.Token.OR_ELSE, new List<Token>());
-                whereAST.Append(OrElse);
-                ParseWhereStatement(lhs, whereAST);
-                ParseWhereStatement(rhs, whereAST);
-
-            }
-            else if (tokens.FindIndex(a => a.Type() == Lexicography.Tokens.Token.IS_EQUAL) != -1)
-            {
-                var index = tokens.FindIndex(a => a.Type() == Lexicography.Tokens.Token.IS_EQUAL);
                 List<Token> children = new List<Token>();
 
-                // Add lhs and rhs of IS_EQUAL token
-                children.Add(tokens[index - 1]);
-                children.Add(tokens[index + 1]);
-                tokens.RemoveRange(index - 1, 3);
+                // Add lhs and rhs of comparison token
+                children.Add(tokens[leftSidePredicate.Item1 - 1]);
+                children.Add(tokens[leftSidePredicate.Item1 + 1]);
+                tokens.RemoveRange(leftSidePredicate.Item1 - 1, 3);
 
-                whereAST.Last().AddChild(new AST.Node(Lexicography.Tokens.Token.IS_EQUAL, children));
+                whereAST.Last().AddChild(new AST.Node(leftSidePredicate.Item2, children));
                 ParseWhereStatement(tokens, whereAST);
             }
             return whereAST;
