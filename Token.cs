@@ -50,6 +50,7 @@ namespace ORM.Lexicography.Tokens
         FALSE,                  // False
         INTEGER,                // 0
         STRING,                  // "Hello"
+        ORDERING,
         AND_ALSO,
         OR_ELSE,
         SELECT,
@@ -58,6 +59,12 @@ namespace ORM.Lexicography.Tokens
         GROUP_BY,
         ORDER_BY,
         UNDEFINED_TOKEN
+    }
+
+    enum Ordering
+    {
+        Ascending,
+        Descending
     }
 
     class TokenCls

@@ -98,6 +98,32 @@ namespace ORM.Generator
                         throw new Exception("WHERE: incorrect construct of node. 2 or more children.");
                     }
                 }
+                else if (currentNode.TokenType() == Token.ORDER_BY)
+                {
+                    var propertyIndex = currentNode.GetTokens().FindIndex(t => t.Type() == Token.OBJECT_PROPERTY);
+                    var orderingIndex = currentNode.GetTokens().FindIndex(t => t.Type() == Token.ORDERING);
+
+                    if (propertyIndex == -1 || orderingIndex == -1)
+                    {
+                        throw new Exception("ORDER BY: invalid node constructed");
+                    }
+
+                    var property = currentNode
+                            .GetTokens()[propertyIndex]
+                            .Characters()
+                            .Split('.')[1];
+
+                    var ordering = currentNode
+                            .GetTokens()[orderingIndex]
+                            .Characters() switch
+                    {
+                        "Ascending" => "ASC",
+                        "Descending" => "DESC",
+                        _ => throw new Exception("ORDER BY: can't determine ordering.")
+                    };
+                    this.sqlQuery += " ORDER BY " + property + " " + ordering;
+
+                }
                 currentNode = currentNode.NextNode();
             }
 

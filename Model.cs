@@ -44,6 +44,19 @@ namespace ORM
             return this;
         }
 
+        public PendingQuery<T> OrderBy(Expression<Func<T, int>> element, Lexicography.Tokens.Ordering ordering = Lexicography.Tokens.Ordering.Descending)
+        {
+            var orderingToken = new Token(Lexicography.Tokens.Token.ORDERING, ordering.ToString());
+            var orderByNode = new AST.Node(
+                    Lexicography.Tokens.Token.ORDER_BY,
+                    Lexer.Tokenize(element.ToString())
+                    .Append(orderingToken)
+                    .ToList()
+                );
+            this.ast.Append(orderByNode);
+            return this;
+        }
+
         private AST.Node ParseWhereStatement(List<Token> tokens, AST.Node whereAST)
         {
             var leftPredicateCombiner = new List<(int, Lexicography.Tokens.Token)>()
